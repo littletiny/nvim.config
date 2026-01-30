@@ -2,13 +2,6 @@
 -- 基础插件配置
 -- ============================================
 
--- Python 3 provider 配置
-vim.g.python3_host_prog = "/usr/bin/python3"
-
--- 启用鼠标支持（仅 normal/visual 模式，方便终端复制）
-vim.o.mouse = 'nv'
-vim.opt.jumpoptions = "stack"
-
 return {
     -- ============================================
     -- 主题
@@ -88,13 +81,18 @@ return {
     },
 	{
 		"nvim-treesitter/nvim-treesitter",
+		lazy = false,
+		build = ":TSUpdate",
 		config = function()
-			return require("nvim-treesitter").setup({
-				ensure_installed = {"yaml"},
-				auto_install = true,  -- 自动安装缺失的 parser
-				highlight = {
-					enable = true,
-				},
+			-- 安装需要的 parser
+			require("nvim-treesitter").install({
+				"c", "lua", "vimdoc", "python", "javascript", "typescript", "rust", "yaml"
+			})
+
+			-- 启用 treesitter 高亮
+			vim.api.nvim_create_autocmd('FileType', {
+				pattern = { 'c', 'lua', 'vimdoc', 'python', 'javascript', 'typescript', 'rust', 'yaml' },
+				callback = function() vim.treesitter.start() end,
 			})
 		end,
 	},
@@ -104,15 +102,11 @@ return {
 			"nvim-lua/plenary.nvim",
 			--"nvim-treesitter/nvim-treesitter",
 		},
-		opts = {
-			-- language = 'chinese',
-			-- NOTE: The log_level is in `opts.opts`
-			opts = {
-				log_level = "TRACE", -- or "TRACE"
-			},
-		},
 		config = function()
 			require("codecompanion").setup({
+				opts = {
+					log_level = "TRACE",
+				},
 				display = {
 					chat = {
 						show_token_count = true,
@@ -122,7 +116,6 @@ return {
 						render_headers = true,
 						show_reasoning = true,
 						fold_reasoning = false,
-						-- 图标配置（使用文字符号替代 Nerd Font）
 						icons = {
 							buffer_sync_all = "[S]",
 							buffer_sync_diff = "[D]",
@@ -141,6 +134,10 @@ return {
 				interactions = {
 					chat = {
 						adapter = "codex",
+						roles = {
+							user = "tiny",
+							llm = "CodeCompanion",
+						},
 					},
 					inline = {
 						adapter = "openai_compatible",
@@ -203,10 +200,10 @@ return {
 				silent = true,
 				desc = "Toggle CodeCompanionChat",
 			})
-			vim.keymap.set({ "n" }, "<leader>e", ":CodeCompanionCmd ", {
+			vim.keymap.set({ "n", "v" }, "<leader>e", ":CodeCompanion ", {
 				noremap = true,
 				silent = false,
-				desc = "执行codecompantionCmd",
+				desc = "执行codecompantion",
 			})
 		end,
 	},
@@ -285,7 +282,7 @@ return {
     -- ============================================
     -- C++ LSP 高亮
     -- ============================================
-    "jackguo380/vim-lsp-cxx-highlight",
+    -- "jackguo380/vim-lsp-cxx-highlight",
 
     -- ============================================
     -- Git 集成
@@ -294,14 +291,8 @@ return {
 		"airblade/vim-gitgutter",
 		enabled = false,
 	},
-	{
-		"tpope/vim-fugitive",
-		enabled = false,
-	},
-	{
-		"junegunn/gv.vim",
-		enabled = false,
-	},
+	"tpope/vim-fugitive",
+	"junegunn/gv.vim",
 
     -- ============================================
     -- 状态栏

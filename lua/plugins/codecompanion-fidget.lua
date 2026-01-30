@@ -171,7 +171,7 @@ return {
 			local header_ns = vim.api.nvim_create_namespace("CodeCompanionHeaderHighlight")
 
 			-- 定义高亮组（根据 tokyonight 主题调整颜色）
-			vim.api.nvim_set_hl(0, "CodeCompanionHeaderMe", {
+			vim.api.nvim_set_hl(0, "CodeCompanionHeaderUser", {
 				bg = "#3d59a1",  -- 蓝色背景（Me）
 				fg = "#ffffff",
 				bold = true,
@@ -197,10 +197,10 @@ return {
 
 				local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 				for line_num, content in ipairs(lines) do
-					-- 匹配 Me header (## Me)
-					if content:match("^## Me$") or content:match("^## Me ") then
+					-- 匹配 User/Me header (## User or ## Me)
+					if content:match("^## User") or content:match("^## tiny") then
 						vim.api.nvim_buf_set_extmark(bufnr, header_ns, line_num - 1, 0, {
-							line_hl_group = "CodeCompanionHeaderMe",
+							line_hl_group = "CodeCompanionHeaderUser",
 							priority = 100,
 						})
 					-- 匹配 CodeCompanion header (## CodeCompanion ...)

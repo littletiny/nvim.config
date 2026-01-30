@@ -6,6 +6,13 @@
 local opt = vim.opt
 local g = vim.g
 
+-- Python 3 provider 配置
+vim.g.python3_host_prog = "/usr/bin/python3"
+
+-- 启用鼠标支持（仅 normal/visual 模式，方便终端复制）
+vim.o.mouse = 'nv'
+vim.opt.jumpoptions = "stack"
+
 -- 基本设置
 opt.clipboard:append("unnamedplus")
 opt.clipboard:append("unnamed")
@@ -253,3 +260,50 @@ g.tagbar_type_go = {
     ctagsbin = "gotags",
     ctagsargs = "-sort -silent"
 }
+
+local function snacks_ai_independent_input()
+  local snacks = require("snacks")
+  local cc = require("codecompanion")
+
+  local actual_width = 0.5
+  actual_width = math.floor(vim.o.columns * actual_width)
+
+  snacks.input({
+    prompt = "User message: ",
+    win = {
+      relative = "editor",
+      position = "float",
+      -- 计算位置：紧贴右侧
+      col = vim.o.columns - actual_width + 2,
+      row = vim.o.lines - 3, -- 距离底部 3 行，避开状态栏
+      width = actual_width - 1,
+      border = "rounded",
+      title_pos = "center",
+      -- 设置特定样式确保它在最上层
+      style = "input",
+	  icon = "",
+      zindex = 100,
+    },
+  }, function(input)
+    if not input or input == "" then return end
+
+    -- 核心逻辑：注入文字并提交
+    local function process_input(target_chat)
+      target_chat:add_buf_message({ role = "user", content = input })
+      vim.schedule(function()
+        target_chat:submit()
+      end)
+    end
+
+    local chat = cc.last_chat()
+
+    if chat and chat.ui:is_active() then
+      process_input(chat)
+    end
+
+  end)
+end
+
+-- 绑定快捷键，例如 <leader>ai
+vim.keymap.set("n", "<leader>i", snacks_ai_independent_input, { desc = "AI Input with Toggle" })
+
