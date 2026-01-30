@@ -304,6 +304,11 @@ local function snacks_ai_independent_input()
   end)
 end
 
--- 绑定快捷键，例如 <leader>ai
-vim.keymap.set("n", "<leader>i", snacks_ai_independent_input, { desc = "AI Input with Toggle" })
+vim.keymap.set("n", "<leader>i", function()
+	vim.cmd("CodeCompanionChat Toggle")
+	snacks_ai_independent_input()
+end, { desc = "AI Input with Toggle" })
 
+vim.keymap.set("n", "<leader>c", function()
+	snacks_ai_independent_input()
+end, { desc = "AI Input with Toggle" })
