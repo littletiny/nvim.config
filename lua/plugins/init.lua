@@ -107,6 +107,7 @@ return {
 		},
 		config = function()
 			local codeagent = "codex"
+			local user = "tiny"
 			require("codecompanion").setup({
 				opts = {
 					log_level = "TRACE",
@@ -139,7 +140,7 @@ return {
 					chat = {
 						adapter = codeagent,
 						roles = {
-							user = "User (tiny)",
+							user = "User (" .. user .. ")",
 							llm = "AI assistant (" .. codeagent .. ")"
 						},
 					},
@@ -261,11 +262,6 @@ return {
     "wellle/targets.vim",
 
     -- ============================================
-    -- 快捷键提示
-    -- ============================================
-    "liuchengxu/vim-which-key",
-
-    -- ============================================
     -- 文件搜索
     -- ============================================
     {
@@ -276,7 +272,8 @@ return {
     -- ============================================
     -- 彩虹括号
     -- ============================================
-    "luochen1990/rainbow",
+    -- "luochen1990/rainbow",
+	"hiphish/rainbow-delimiters.nvim",
 
     -- ============================================
     -- C++ LSP 高亮
