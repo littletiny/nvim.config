@@ -60,11 +60,6 @@ return {
 					poll_rate = 10,
 					filter = vim.log.levels.INFO,
 					history_size = 128,
-					icons = {
-						sent = "➜",
-						pending = "⏳",
-						done = "✓",
-					},
 					configs = {
 						default = notification.default_config,
 					},
@@ -79,12 +74,10 @@ return {
 						y_padding = 0,
 						align = "bottom",
 						relative = "editor",
+						avoid = {"Nvim-tree"},
 					},
 				},
 				integration = {
-					["nvim-tree"] = {
-						enable = false,
-					},
 				},
 			})
 
@@ -197,14 +190,14 @@ return {
 
 				local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
 				for line_num, content in ipairs(lines) do
-					-- 匹配 User/Me header (## User or ## Me)
-					if content:match("^## User") or content:match("^## tiny") then
+					-- 匹配 User header
+					if content:match("^## User") then
 						vim.api.nvim_buf_set_extmark(bufnr, header_ns, line_num - 1, 0, {
 							line_hl_group = "CodeCompanionHeaderUser",
 							priority = 100,
 						})
-					-- 匹配 CodeCompanion header (## CodeCompanion ...)
-					elseif content:match("^## CodeCompanion") then
+					-- 匹配 AI assistant header
+					elseif content:match("^## AI assistant") then
 						vim.api.nvim_buf_set_extmark(bufnr, header_ns, line_num - 1, 0, {
 							line_hl_group = "CodeCompanionHeaderLLM",
 							priority = 100,
