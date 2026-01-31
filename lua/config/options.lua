@@ -2,85 +2,179 @@
 -- 基础 Vim 配置
 -- 从 init.vim.bak 迁移
 -- ============================================
+-- 本文件包含:
+-- 1. 基础 Vim 选项设置 (缩进、搜索、界面等)
+-- 2. 自动命令 (文件类型检测、自动保存等)
+-- 3. 键位映射 (LeaderF、Git、LSP 等)
+-- 4. 全局变量设置 (LeaderF、GTAGS 等)
+-- 5. AI 输入框相关函数
+-- ============================================
 
 local opt = vim.opt
 local g = vim.g
 
--- Python 3 provider 配置
+-- ============================================
+-- Python 配置
+-- ============================================
+-- 指定 Python3 解释器路径，用于 Neovim 的 Python 接口
 vim.g.python3_host_prog = "/usr/bin/python3"
 
+-- ============================================
+-- 鼠标与剪贴板配置
+-- ============================================
+
 -- 启用鼠标支持（仅 normal/visual 模式，方便终端复制）
+-- 'nv' = normal + visual 模式，不在 insert 模式启用避免干扰
 vim.o.mouse = 'nv'
+
+-- 跳转选项: "stack" 使用标签栈方式管理跳转历史
+-- 使得 <C-o> <C-i> 可以在跳转历史中来回导航
 vim.opt.jumpoptions = "stack"
 
--- 基本设置
+-- 剪贴板配置
+-- unnamedplus: 使用系统剪贴板 (+ 寄存器)
+-- unnamed: 使用主选择缓冲区 (* 寄存器)
 opt.clipboard:append("unnamedplus")
 opt.clipboard:append("unnamed")
+
+-- 通过 OSC52 协议实现远程/终端内的剪贴板同步
+-- 当文本被复制(yank)时，自动同步到系统剪贴板
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()
-    -- vim.highlight.on_yank()
     local copy_to_unnamedplus = require("vim.ui.clipboard.osc52").copy("+")
     copy_to_unnamedplus(vim.v.event.regcontents)
     local copy_to_unnamed = require("vim.ui.clipboard.osc52").copy("*")
     copy_to_unnamed(vim.v.event.regcontents)
   end,
 })
+
+-- ============================================
+-- 补全与编码配置
+-- ============================================
+
+-- 补全选项:
+-- menu: 显示补全菜单
+-- menuone: 即使只有一个匹配也显示菜单
+-- noselect: 不自动选择第一个匹配项
+-- preview: 在预览窗口显示文档
 opt.completeopt = { "menu", "menuone", "noselect", "preview" }
+
+-- 文件编码检测顺序: UTF-8 -> UCS-BOM -> GB18030 -> GBK -> GB2312 -> CP936
+-- 确保中文文件能正确显示
 opt.fileencodings = "utf-8,ucs-bom,gb18030,gbk,gb2312,cp936"
--- termencoding 在 Neovim 中不支持，使用环境变量
+
+-- 设置环境变量和默认编码
 vim.env.LANG = "en_US.UTF-8"
 opt.encoding = "utf-8"
 
+-- ============================================
+-- 界面显示配置
+-- ============================================
 
-
--- 界面设置
+-- 显示行号
 opt.number = true
+
+-- 显示相对行号 (当前行为 0，上下行显示相对距离)
+-- 方便使用 [count]j/k 进行跳转
 opt.relativenumber = true
+
+-- 不显示当前行高亮
 opt.cursorline = false
--- syntax 启用是自动的，使用 vim.cmd 来确保
+
+-- 启用语法高亮 (使用 vim.cmd 确保生效)
 vim.cmd("syntax on")
+
+-- 始终显示状态栏
 opt.laststatus = 2
+
+-- 垂直分割时新窗口在右侧
 opt.splitright = true
+
+-- 允许隐藏未保存的缓冲区
+-- 可以在不保存的情况下切换缓冲区
 opt.hidden = true
 
--- 缩进设置
+-- ============================================
+-- 缩进与制表符配置
+-- ============================================
+
+-- Tab 显示宽度为 4 个空格
 opt.tabstop = 4
+
+-- 自动缩进宽度为 4 个空格
 opt.shiftwidth = 4
+
+-- 按 Tab 键时插入 4 个空格宽度的字符
 opt.softtabstop = 4
+
+-- 缩进时对齐到 shiftwidth 的倍数
 opt.shiftround = true
+
+-- 不将 Tab 转换为空格 (使用真实 Tab 字符)
+-- 适用于 Makefile 等需要真实 Tab 的文件
 opt.expandtab = false
+
+-- 启用 C 风格自动缩进
 opt.cindent = true
+
+-- 智能缩进 (根据上下文自动调整)
 opt.smartindent = true
+
+-- 自动继承上一行的缩进
 opt.autoindent = true
 
--- 搜索设置
+-- ============================================
+-- 搜索配置
+-- ============================================
+
+-- 高亮搜索结果
 opt.hlsearch = true
+
+-- 搜索时忽略大小写
 opt.ignorecase = true
+
+-- 智能大小写: 如果搜索包含大写字母，则区分大小写
 opt.smartcase = true
 
--- 其他设置
+-- ============================================
+-- 其他常用选项
+-- ============================================
+
+-- 不创建备份文件
 opt.backup = false
+
+-- 退格键可以删除: 缩进、行尾、插入起始点
 opt.backspace = { "indent", "eol", "start" }
+
+-- Tags 文件搜索路径
+-- ./.tags; 表示从当前目录向上递归查找 .tags 文件
 opt.tags = "./.tags;"
+
+-- 鼠标模式与扩展 (与 mouse='nv' 配合)
 opt.mouse = "nv"
 opt.mousemodel = "extend"
+
+-- 文件被外部修改时自动重新加载
 opt.autoread = true
 
--- 确保显示部分输入的命令（右下角）
+-- 在右下角显示部分输入的命令
 opt.showcmd = true
--- 禁用延迟重绘，确保命令行立即显示
+
+-- 不禁用延迟重绘，确保命令行立即显示
 opt.lazyredraw = false
+
 -- 命令行高度
 opt.cmdheight = 1
 
 -- ============================================
--- 自动命令
+-- 自动命令 (Autocommands)
 -- ============================================
 
 local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 
-
+-- 自动跳转到上次编辑位置
+-- 打开文件时，光标恢复到上次关闭时的位置
 vim.api.nvim_create_autocmd("BufReadPost", {
     callback = function()
         local mark = vim.api.nvim_buf_get_mark(0, '"')
@@ -91,19 +185,20 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end,
 })
 
--- Makefile 使用 tab
+-- Makefile 使用真实 Tab (不展开为空格)
 autocmd("FileType", {
     pattern = "make",
     command = "setlocal noexpandtab",
 })
 
--- 关闭补全后关闭预览窗口
+-- 补全完成后自动关闭预览窗口
 autocmd("CompleteDone", {
     pattern = "*",
     command = "if pumvisible() == 0 | pclose | endif",
 })
 
--- 禁用 .h 文件的诊断
+-- 禁用 .h 文件的 LSP 诊断
+-- 避免 C 头文件被错误地识别为 C++ 产生误报
 autocmd({"BufEnter", "BufWinEnter", "BufRead", "BufReadPre", "FileReadPre"}, {
     pattern = ".h",
     callback = function(args)
@@ -111,131 +206,133 @@ autocmd({"BufEnter", "BufWinEnter", "BufRead", "BufReadPre", "FileReadPre"}, {
     end,
 })
 
--- 设置 .ic 和 .i.*.CU 文件类型为 cpp
+-- 设置特定文件扩展名的文件类型
+-- .ic 和 .i.*.CU 文件识别为 C++
 autocmd({"BufNewFile", "BufRead"}, {
     pattern = {"*.ic", "*.i.*.CU"},
     command = "set filetype=cpp",
 })
 
---[[
--- ============================================
--- 自定义函数
--- ============================================
-
--- 查找光标所在的浮动窗口
-function _G.FindCursorFloatWin()
-    local win_list = vim.api.nvim_list_wins()
-    local cursor_row = vim.fn.screenrow()
-    local cursor_col = vim.fn.screencol()
-
-    for _, winid in ipairs(win_list) do
-        if vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_config(winid).relative ~= '' then
-            local win_row = vim.api.nvim_win_get_position(winid)[1]
-            local win_col = vim.api.nvim_win_get_position(winid)[2]
-            local win_height = vim.api.nvim_win_get_height(winid)
-            local win_width = vim.api.nvim_win_get_width(winid)
-
-            -- 检查光标是否在浮动窗口范围内
-            if cursor_row >= win_row and cursor_row <= win_row + win_height
-               and cursor_col >= win_col and cursor_col <= win_col + win_width then
-                return winid
-            end
-        end
-    end
-    return nil
-end
-
--- 滚动浮动窗口
-function _G.ScrollFloatWin(down)
-    local winid = _G.FindCursorFloatWin()
-    if not winid then
-        return false
-    end
-
-    local bufnr = vim.api.nvim_win_get_buf(winid)
-    local line_count = vim.api.nvim_buf_line_count(bufnr)
-    local current_line = vim.api.nvim_win_get_cursor(winid)[1]
-    local win_height = vim.api.nvim_win_get_height(winid)
-
-    local new_line = current_line + (down and 25 or -25)
-    -- 限制滚动范围
-    new_line = math.max(1, math.min(new_line, line_count - win_height + 1))
-
-    vim.api.nvim_win_set_cursor(winid, { new_line, 0 })
-    return true
-end
-
--- 关闭浮动窗口
-function _G.HidePopup()
-    local winid = _G.FindCursorFloatWin()
-    if winid then
-        vim.api.nvim_win_close(winid, true)
-    end
-    return true
-end
-
--- Popup 窗口
-map("n", "<F5>", function() return _G.HidePopup() and "<esc>" or "<esc>" end, { expr = true, desc = 'hide window' })
---]]
-
 -- ============================================
 -- 键位映射
 -- ============================================
+-- 注意: 以下映射主要使用 <leader> (空格) 和 <localleader> (,) 作为前缀
+-- which-key 插件会在按下 <leader> 后显示可用的快捷键提示
 
 local map = vim.keymap.set
 
+-- --------------------------------------------
+-- LeaderF 文件搜索键位
+-- --------------------------------------------
+-- LeaderF 是一个模糊搜索插件，用于快速定位文件、函数、行等
 
--- LeaderF 键位
---vim.keymap.del("n", "<leader>f")
-map("n", "<C-e>", [[:<C-U><C-R>=printf("Leaderf function %s", "")<CR><CR>]], { silent = true, desc = 'search & list functions in current file' })
-map("n", "<C-p>", ":LeaderfFile<CR>", { silent = true, desc = 'search & list file in current dir' })
-map("n", "<C-l>", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true, desc = 'search & list line in current file' })
-map("n", "<leader>w", [[:<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>]], { silent = false, desc = 'grep current word' })
-map("n", "<leader>g", [[:<C-U><C-R>=printf("Leaderf rg %s", "")<CR>]], { silent = false, desc = 'grep input word' })
-map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s --all-commands", "")<CR><CR>]], { silent = true, desc = 'search & list all commands' })
---map("n", "<leader>t", [[:<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>]], { silent = true })
---map("n", "<leader>s", [[:<C-U><C-R>=printf("Leaderf! gtags -r ")<CR>]], { silent = true })
---map("n", "<leader>l", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true })
---map("n", "<leader>p", ":LeaderfFile<CR>", { silent = true })
+-- <C-e>: 搜索当前文件中的函数/符号
+map("n", "<C-e>", [[:<C-U><C-R>=printf("Leaderf function %s", "")<CR><CR>]], 
+    { silent = true, desc = 'search & list functions in current file' })
 
--- Git 键位
-map("n", "<localleader>g", ":GV<CR>", { silent = true, desc = 'git log --oneline current repo' })
-map("n", "<leader>b", ":Git blame<CR>", { silent = true, desc = 'git blame current file' })
+-- <C-p>: 模糊搜索文件
+map("n", "<C-p>", ":LeaderfFile<CR>", 
+    { silent = true, desc = 'search & list file in current dir' })
 
--- 诊断
-map("n", "<leader>d", function() vim.diagnostic.open_float() end, { silent = true, desc = 'show diagnose in current line [lsp]' })
+-- <C-l>: 搜索当前文件的行
+map("n", "<C-l>", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], 
+    { silent = true, desc = 'search & list line in current file' })
 
+-- <leader>w: 搜索光标下的单词 (使用 rg)
+map("n", "<leader>w", [[:<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>]], 
+    { silent = false, desc = 'grep current word' })
+
+-- <leader>g: 搜索输入的内容 (使用 rg)
+map("n", "<leader>g", [[:<C-U><C-R>=printf("Leaderf rg %s", "")<CR>]], 
+    { silent = false, desc = 'grep input word' })
+
+-- <leader>f: 搜索所有 LeaderF 命令
+map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s --all-commands", "")<CR><CR>]], 
+    { silent = true, desc = 'search & list all commands' })
+
+-- --------------------------------------------
+-- Git 相关键位
+-- --------------------------------------------
+
+-- <localleader>g ( ,g ): 打开 GV - Git 提交日志浏览器
+map("n", "<localleader>g", ":GV<CR>", 
+    { silent = true, desc = 'git log --oneline current repo' })
+
+-- <leader>b: 打开 Git blame
+map("n", "<leader>b", ":Git blame<CR>", 
+    { silent = true, desc = 'git blame current file' })
+
+-- --------------------------------------------
+-- LSP 诊断键位
+-- --------------------------------------------
+
+-- <leader>d: 显示当前行的诊断信息
+map("n", "<leader>d", function() vim.diagnostic.open_float() end, 
+    { silent = true, desc = 'show diagnose in current line [lsp]' })
 
 -- ============================================
 -- 全局变量设置
 -- ============================================
 
--- LeaderF 设置
-g.Lf_ShowDevIcons = 0
-g.Lf_PreviewInPopup = 1
-g.Lf_WindowPosition = "popup"
-g.Lf_GtagsAutoGenerate = 0
-g.Lf_CacheDirectory = vim.fn.expand("~/.cache/")
-g.Lf_UseVersionControlTool = 0
-g.Lf_WindowHeight = 0.3
-g.Lf_PopupWidth = 0.75
+-- --------------------------------------------
+-- LeaderF 插件设置
+-- --------------------------------------------
+-- 详细配置参考: https://github.com/Yggdroot/LeaderF
+
+g.Lf_ShowDevIcons = 0              -- 不显示文件类型图标
+
+g.Lf_PreviewInPopup = 1            -- 在弹出窗口中预览
+
+g.Lf_WindowPosition = "popup"      -- 使用弹出窗口显示结果
+
+g.Lf_GtagsAutoGenerate = 0         -- 不自动生成 GTAGS
+
+g.Lf_CacheDirectory = vim.fn.expand("~/.cache/")  -- 缓存目录
+
+g.Lf_UseVersionControlTool = 0     -- 不使用版本控制工具
+
+g.Lf_WindowHeight = 0.3            -- 窗口高度 (30%)
+
+g.Lf_PopupWidth = 0.75             -- 弹出窗口宽度 (75%)
+
+-- 忽略的文件和目录
+-- 在文件搜索时排除这些项目
+-- dir: 忽略的目录
+-- file: 忽略的文件类型
 g.Lf_WildIgnore = {
     dir = { ".git", "deps" },
     file = { "*.sw?", "*.o", "*.so.*", "*.so", "*.py[co]" }
 }
-g.Lf_DefaultMode = "FullPath"
+
+g.Lf_DefaultMode = "FullPath"      -- 默认使用全路径匹配模式
+
+-- MRU (最近使用文件) 排除列表
 g.Lf_MruFileExclude = { "*.sw?", "*.o", "*.so.*", "*.so", "*.py[co]" }
+
+-- 弹出窗口位置: { 行偏移, 列偏移 }
 g.Lf_PopupPosition = { 1, 0 }
+
+-- 预览窗口位置: 底部
 g.Lf_PopupPreviewPosition = "bottom"
 
--- GTAGS 设置
-vim.env.GTAGSLABEL = "native-pygments"
+-- --------------------------------------------
+-- GTAGS (GNU Global) 设置
+-- --------------------------------------------
+-- 用于代码跳转和符号搜索
+
+vim.env.GTAGSLABEL = "native-pygments"  -- 使用 native-pygments 解析器
 vim.env.GTATGSCONF = "/usr/share/global/gtags/gtags.conf"
 
--- opencode 设置
+-- --------------------------------------------
+-- opencode 设置 (备用 AI 工具)
+-- --------------------------------------------
 g.opencode_opts = {}
 
--- Tagbar Go 配置
+-- --------------------------------------------
+-- Tagbar Go 语言配置
+-- --------------------------------------------
+-- 定义 Go 语言的 ctags 解析规则
+
 g.tagbar_type_go = {
     ctagstype = "go",
     kinds = {
@@ -264,6 +361,12 @@ g.tagbar_type_go = {
     ctagsargs = "-sort -silent"
 }
 
+-- ============================================
+-- AI 输入框函数
+-- ============================================
+-- 该函数创建一个独立的输入框，用于向 CodeCompanion AI 发送消息
+-- 复用 CodeCompanionChat 的 Toggle 机制，而不是重新实现
+
 local function snacks_ai_independent_input()
   local snacks = require("snacks")
   local cc = require("codecompanion")
@@ -280,6 +383,7 @@ local function snacks_ai_independent_input()
   local actual_width = 0.5
   actual_width = math.floor(vim.o.columns * actual_width)
 
+  -- 创建输入框
   snacks.input({
     prompt = "User message: ",
     win = {
@@ -293,7 +397,7 @@ local function snacks_ai_independent_input()
       title_pos = "center",
       -- 设置特定样式确保它在最上层
       style = "input",
-	  icon = "",
+      icon = "",
       zindex = 100,
     },
   }, function(input)
@@ -316,6 +420,8 @@ local function snacks_ai_independent_input()
   end)
 end
 
+-- 绑定 <leader>c 到 AI 输入框
+-- Normal 和 Visual 模式下都可以触发
 vim.keymap.set({"n", "v"}, "<leader>c", function()
-	snacks_ai_independent_input()
+    snacks_ai_independent_input()
 end, { desc = "AI Input with Toggle [AI:agent]" })
