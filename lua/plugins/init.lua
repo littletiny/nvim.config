@@ -262,6 +262,13 @@ return {
                 silent = false,
                 desc = "ask AI something, the response will insert to currnet file [AI:model]",
             })
+
+            -- <leader>t: 执行 CodeCompanionChat Toggle 命令（显示/隐藏 AI面板）
+            vim.keymap.set({ "n", "v" }, "<leader>t", ":CodeCompanionChat Toggle<CR>", {
+                noremap = true,
+                silent = true,
+                desc = "show/hide current chat buffer [AI:agent]"
+            })
         end,
     },
 
