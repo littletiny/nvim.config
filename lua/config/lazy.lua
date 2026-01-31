@@ -33,6 +33,8 @@ require("lazy").setup({
     checker = { enabled = true, notify = false },
     -- 禁用 luarocks (如果不需要)
     rocks = { enabled = false },
+    -- 禁用配置变更自动重载
+    change_detection = { enabled = false },
     -- 性能优化
     performance = {
         rtp = {
