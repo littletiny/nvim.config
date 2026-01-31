@@ -7,8 +7,8 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = ","
 
--- 加载基础配置
-require("config.options")
-
 -- 加载 lazy.nvim 和插件
 require("config.lazy")
+
+-- 加载基础配置
+require("config.options")

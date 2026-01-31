@@ -121,41 +121,55 @@ autocmd({"BufNewFile", "BufRead"}, {
 -- 自定义函数
 -- ============================================
 
--- 查找光标所在的 popup 窗口
-function _G.FindCursorPopUp(radius)
-    radius = radius or 2
-    local srow = vim.fn.screenrow()
-    local scol = vim.fn.screencol()
+-- 查找光标所在的浮动窗口
+function _G.FindCursorFloatWin()
+    local win_list = vim.api.nvim_list_wins()
+    local cursor_row = vim.fn.screenrow()
+    local cursor_col = vim.fn.screencol()
     
-    for r = srow - radius, srow + radius do
-        for c = scol - radius, scol + radius do
-            local winid = vim.fn.popup_locate(r, c)
-            if winid ~= 0 then
+    for _, winid in ipairs(win_list) do
+        if vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_config(winid).relative ~= '' then
+            local win_row = vim.api.nvim_win_get_position(winid)[1]
+            local win_col = vim.api.nvim_win_get_position(winid)[2]
+            local win_height = vim.api.nvim_win_get_height(winid)
+            local win_width = vim.api.nvim_win_get_width(winid)
+            
+            -- 检查光标是否在浮动窗口范围内
+            if cursor_row >= win_row and cursor_row <= win_row + win_height
+               and cursor_col >= win_col and cursor_col <= win_col + win_width then
                 return winid
             end
         end
     end
-    return 0
+    return nil
 end
 
--- 滚动 popup 窗口
-function _G.ScrollPopUp(down)
-    local winid = _G.FindCursorPopUp()
-    if winid == 0 then
+-- 滚动浮动窗口
+function _G.ScrollFloatWin(down)
+    local winid = _G.FindCursorFloatWin()
+    if not winid then
         return false
     end
     
-    local pp = vim.fn.popup_getpos(winid)
-    vim.fn.popup_setoptions(winid, {
-        firstline = pp.firstline + (down and 25 or -25)
-    })
+    local bufnr = vim.api.nvim_win_get_buf(winid)
+    local line_count = vim.api.nvim_buf_line_count(bufnr)
+    local current_line = vim.api.nvim_win_get_cursor(winid)[1]
+    local win_height = vim.api.nvim_win_get_height(winid)
+    
+    local new_line = current_line + (down and 25 or -25)
+    -- 限制滚动范围
+    new_line = math.max(1, math.min(new_line, line_count - win_height + 1))
+    
+    vim.api.nvim_win_set_cursor(winid, { new_line, 0 })
     return true
 end
 
--- 隐藏 popup 窗口
+-- 关闭浮动窗口
 function _G.HidePopup()
-    local winid = _G.FindCursorPopUp()
-    vim.fn.popup_close(winid)
+    local winid = _G.FindCursorFloatWin()
+    if winid then
+        vim.api.nvim_win_close(winid, true)
+    end
     return true
 end
 
@@ -165,13 +179,15 @@ end
 
 local map = vim.keymap.set
 
+
 -- LeaderF 键位
+--vim.keymap.del("n", "<leader>f")
 map("n", "<C-e>", [[:<C-U><C-R>=printf("Leaderf function %s", "")<CR><CR>]], { silent = true })
 map("n", "<C-p>", ":LeaderfFile<CR>", { silent = true })
 map("n", "<C-l>", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true })
 map("n", "<leader>w", [[:<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>]], { silent = false })
 map("n", "<leader>g", [[:<C-U><C-R>=printf("Leaderf rg %s", "")<CR>]], { silent = false })
---map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s", "")<CR><CR>]], { silent = true })
+map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s --all-commands", "")<CR><CR>]], { silent = true })
 --map("n", "<leader>t", [[:<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>]], { silent = true })
 --map("n", "<leader>s", [[:<C-U><C-R>=printf("Leaderf! gtags -r ")<CR>]], { silent = true })
 --map("n", "<leader>l", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true })
