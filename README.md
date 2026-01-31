@@ -57,7 +57,7 @@
 |--------|------|----------|
 | `<C-n>` | Normal | 新建 CodeCompanionChat 会话 |
 | `<leader>a` | Visual | 添加选中的内容到 CodeCompanionChat |
-| `<leader>e` | Normal/Visual | 执行 CodeCompanion 命令 |
+| `<leader>e` | Normal/Visual | 执行 CodeCompanion 命令, 会直接修改当前文件，主要用来快速修改代码 |
 | `<leader>c` | Normal/Visual | 打开 AI 输入框 (带 Toggle 功能) |
 
 ### 其他工具
