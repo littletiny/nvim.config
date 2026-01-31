@@ -187,23 +187,23 @@ local map = vim.keymap.set
 
 -- LeaderF 键位
 --vim.keymap.del("n", "<leader>f")
-map("n", "<C-e>", [[:<C-U><C-R>=printf("Leaderf function %s", "")<CR><CR>]], { silent = true, desc = 'search function in current file' })
-map("n", "<C-p>", ":LeaderfFile<CR>", { silent = true })
-map("n", "<C-l>", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true, desc = 'search file in dir' })
-map("n", "<leader>w", [[:<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>]], { silent = false, desc = 'search line in current file' })
-map("n", "<leader>g", [[:<C-U><C-R>=printf("Leaderf rg %s", "")<CR>]], { silent = false, desc = 'search word' })
-map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s --all-commands", "")<CR><CR>]], { silent = true, desc = 'show all commands' })
+map("n", "<C-e>", [[:<C-U><C-R>=printf("Leaderf function %s", "")<CR><CR>]], { silent = true, desc = 'search & list functions in current file' })
+map("n", "<C-p>", ":LeaderfFile<CR>", { silent = true, desc = 'search & list file in current dir' })
+map("n", "<C-l>", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true, desc = 'search & list line in current file' })
+map("n", "<leader>w", [[:<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>]], { silent = false, desc = 'grep current word' })
+map("n", "<leader>g", [[:<C-U><C-R>=printf("Leaderf rg %s", "")<CR>]], { silent = false, desc = 'grep input word' })
+map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s --all-commands", "")<CR><CR>]], { silent = true, desc = 'search & list all commands' })
 --map("n", "<leader>t", [[:<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>]], { silent = true })
 --map("n", "<leader>s", [[:<C-U><C-R>=printf("Leaderf! gtags -r ")<CR>]], { silent = true })
 --map("n", "<leader>l", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true })
 --map("n", "<leader>p", ":LeaderfFile<CR>", { silent = true })
 
 -- Git 键位
-map("n", "<localleader>g", ":GV<CR>", { silent = true, desc = 'git log --oneline' })
-map("n", "<leader>b", ":Git blame<CR>", { silent = true, desc = 'git blame' })
+map("n", "<localleader>g", ":GV<CR>", { silent = true, desc = 'git log --oneline current repo' })
+map("n", "<leader>b", ":Git blame<CR>", { silent = true, desc = 'git blame current file' })
 
 -- 诊断
-map("n", "<leader>d", function() vim.diagnostic.open_float() end, { silent = true, desc = 'show diagnose in cursor line' })
+map("n", "<leader>d", function() vim.diagnostic.open_float() end, { silent = true, desc = 'show diagnose in current line [lsp]' })
 
 
 -- ============================================
@@ -318,4 +318,4 @@ end
 
 vim.keymap.set({"n", "v"}, "<leader>c", function()
 	snacks_ai_independent_input()
-end, { desc = "AI Input with Toggle" })
+end, { desc = "AI Input with Toggle [AI:agent]" })
