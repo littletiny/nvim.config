@@ -265,6 +265,15 @@ local function snacks_ai_independent_input()
   local snacks = require("snacks")
   local cc = require("codecompanion")
 
+  -- 检查并确保 chat buffer 是打开状态
+  local chat = cc.last_chat()
+  if not chat or not chat.ui:is_visible() then
+    -- 如果 chat 不存在或不可见，打开它
+    cc.toggle()
+    -- 重新获取 chat（toggle 后可能创建了新的）
+    chat = cc.last_chat()
+  end
+
   local actual_width = 0.5
   actual_width = math.floor(vim.o.columns * actual_width)
 
@@ -295,20 +304,15 @@ local function snacks_ai_independent_input()
       end)
     end
 
-    local chat = cc.last_chat()
-
-    if chat and chat.ui:is_active() then
-      process_input(chat)
+    -- 重新获取最新的 chat 实例
+    local target_chat = cc.last_chat()
+    if target_chat then
+      process_input(target_chat)
     end
 
   end)
 end
 
-vim.keymap.set("n", "<leader>i", function()
-	vim.cmd("CodeCompanionChat Toggle")
-	snacks_ai_independent_input()
-end, { desc = "AI Input with Toggle" })
-
-vim.keymap.set("n", "<leader>c", function()
+vim.keymap.set({"n", "v"}, "<leader>c", function()
 	snacks_ai_independent_input()
 end, { desc = "AI Input with Toggle" })
