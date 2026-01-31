@@ -45,7 +45,10 @@ return {
         lazy = false,
         ---@type snacks.Config
         opts = {
-            input = { enabled = true },
+            input = { 
+                enabled = true,
+                icon = "> ",
+            },
             picker = {
                 enabled = true,
                 sources = {
@@ -103,6 +106,7 @@ return {
 			--"nvim-treesitter/nvim-treesitter",
 		},
 		config = function()
+			local codeagent = "codex"
 			require("codecompanion").setup({
 				opts = {
 					log_level = "TRACE",
@@ -133,10 +137,10 @@ return {
 				},
 				interactions = {
 					chat = {
-						adapter = "codex",
+						adapter = codeagent,
 						roles = {
-							user = "tiny",
-							llm = "CodeCompanion",
+							user = "User (tiny)",
+							llm = "AI assistant (" .. codeagent .. ")"
 						},
 					},
 					inline = {
@@ -190,15 +194,10 @@ return {
 				silent = true,
 				desc = "new codecompantionchat session",
 			})
-			vim.keymap.set({ "n", "v" }, "<leader>a", ":CodeCompanionChat Add<CR>", {
+			vim.keymap.set({ "v" }, "<leader>a", ":CodeCompanionChat Add<CR>", {
 				noremap = true,
 				silent = true,
 				desc = "add context to codecompantionchat",
-			})
-			vim.keymap.set({ "n" }, "<leader>t", ":CodeCompanionChat Toggle<CR>", {
-				noremap = true,
-				silent = true,
-				desc = "Toggle CodeCompanionChat",
 			})
 			vim.keymap.set({ "n", "v" }, "<leader>e", ":CodeCompanion ", {
 				noremap = true,
