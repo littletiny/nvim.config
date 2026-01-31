@@ -22,7 +22,7 @@ return {
         },
         config = function()
             local cmp = require("cmp")
-            
+
             -- 设置补全
             cmp.setup({
                 snippet = {

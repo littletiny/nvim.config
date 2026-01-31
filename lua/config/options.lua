@@ -117,6 +117,7 @@ autocmd({"BufNewFile", "BufRead"}, {
     command = "set filetype=cpp",
 })
 
+--[[
 -- ============================================
 -- 自定义函数
 -- ============================================
@@ -126,14 +127,14 @@ function _G.FindCursorFloatWin()
     local win_list = vim.api.nvim_list_wins()
     local cursor_row = vim.fn.screenrow()
     local cursor_col = vim.fn.screencol()
-    
+
     for _, winid in ipairs(win_list) do
         if vim.api.nvim_win_is_valid(winid) and vim.api.nvim_win_get_config(winid).relative ~= '' then
             local win_row = vim.api.nvim_win_get_position(winid)[1]
             local win_col = vim.api.nvim_win_get_position(winid)[2]
             local win_height = vim.api.nvim_win_get_height(winid)
             local win_width = vim.api.nvim_win_get_width(winid)
-            
+
             -- 检查光标是否在浮动窗口范围内
             if cursor_row >= win_row and cursor_row <= win_row + win_height
                and cursor_col >= win_col and cursor_col <= win_col + win_width then
@@ -150,16 +151,16 @@ function _G.ScrollFloatWin(down)
     if not winid then
         return false
     end
-    
+
     local bufnr = vim.api.nvim_win_get_buf(winid)
     local line_count = vim.api.nvim_buf_line_count(bufnr)
     local current_line = vim.api.nvim_win_get_cursor(winid)[1]
     local win_height = vim.api.nvim_win_get_height(winid)
-    
+
     local new_line = current_line + (down and 25 or -25)
     -- 限制滚动范围
     new_line = math.max(1, math.min(new_line, line_count - win_height + 1))
-    
+
     vim.api.nvim_win_set_cursor(winid, { new_line, 0 })
     return true
 end
@@ -173,6 +174,10 @@ function _G.HidePopup()
     return true
 end
 
+-- Popup 窗口
+map("n", "<F5>", function() return _G.HidePopup() and "<esc>" or "<esc>" end, { expr = true, desc = 'hide window' })
+--]]
+
 -- ============================================
 -- 键位映射
 -- ============================================
@@ -182,46 +187,28 @@ local map = vim.keymap.set
 
 -- LeaderF 键位
 --vim.keymap.del("n", "<leader>f")
-map("n", "<C-e>", [[:<C-U><C-R>=printf("Leaderf function %s", "")<CR><CR>]], { silent = true })
+map("n", "<C-e>", [[:<C-U><C-R>=printf("Leaderf function %s", "")<CR><CR>]], { silent = true, desc = 'search function in current file' })
 map("n", "<C-p>", ":LeaderfFile<CR>", { silent = true })
-map("n", "<C-l>", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true })
-map("n", "<leader>w", [[:<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>]], { silent = false })
-map("n", "<leader>g", [[:<C-U><C-R>=printf("Leaderf rg %s", "")<CR>]], { silent = false })
-map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s --all-commands", "")<CR><CR>]], { silent = true })
+map("n", "<C-l>", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true, desc = 'search file in dir' })
+map("n", "<leader>w", [[:<C-U><C-R>=printf("Leaderf! rg %s", expand("<cword>"))<CR><CR>]], { silent = false, desc = 'search line in current file' })
+map("n", "<leader>g", [[:<C-U><C-R>=printf("Leaderf rg %s", "")<CR>]], { silent = false, desc = 'search word' })
+map("n", "<leader>f", [[:<C-U><C-R>=printf("Leaderf self %s --all-commands", "")<CR><CR>]], { silent = true, desc = 'show all commands' })
 --map("n", "<leader>t", [[:<C-U><C-R>=printf("Leaderf bufTag %s", "")<CR><CR>]], { silent = true })
 --map("n", "<leader>s", [[:<C-U><C-R>=printf("Leaderf! gtags -r ")<CR>]], { silent = true })
 --map("n", "<leader>l", [[:<C-U><C-R>=printf("Leaderf line %s", "")<CR><CR>]], { silent = true })
 --map("n", "<leader>p", ":LeaderfFile<CR>", { silent = true })
 
 -- Git 键位
-map("n", "<localleader>g", ":GV<CR>", { silent = true })
-map("n", "<leader>b", ":Git blame<CR>", { silent = true })
-
--- WhichKey（延迟显示，避免干扰命令行）
-map("n", "<leader>", ":WhichKey '<Space>'<CR>", { silent = true })
+map("n", "<localleader>g", ":GV<CR>", { silent = true, desc = 'git log --oneline' })
+map("n", "<leader>b", ":Git blame<CR>", { silent = true, desc = 'git blame' })
 
 -- 诊断
-map("n", "<leader>d", function() vim.diagnostic.open_float() end, { silent = true })
+map("n", "<leader>d", function() vim.diagnostic.open_float() end, { silent = true, desc = 'show diagnose in cursor line' })
 
--- Popup 窗口
-map("n", "<F5>", function() return _G.HidePopup() and "<esc>" or "<esc>" end, { expr = true })
 
 -- ============================================
 -- 全局变量设置
 -- ============================================
-
--- Rainbow 括号
-g.rainbow_active = 1
-
--- WhichKey 超时（增加到 500ms，避免过快弹出）
-g.which_key_timeout = 500
-
--- Ccls 设置
-g.ccls_close_on_jump = true
-g.ccls_levels = 2
-g.ccls_size = 40
-g.ccls_position = "botleft"
-g.ccls_orientation = "vertical"
 
 -- LeaderF 设置
 g.Lf_ShowDevIcons = 0

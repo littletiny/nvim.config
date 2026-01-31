@@ -259,7 +259,7 @@ return {
 				ignore_terminal = true,
 				return_cursor = true,
 			})
-			vim.keymap.set('n', '<Leader>t', ws.trim)
+			vim.keymap.set('n', '<Leader>t', ws.trim, {desc = 'trim all tail whitespace'})
 		end,
 	},
 
@@ -280,6 +280,75 @@ return {
         "Yggdroot/LeaderF",
         build = "./install.sh",
     },
+
+	{
+		"folke/which-key.nvim",
+		event = "VeryLazy",
+		opts = {
+			-- your configuration comes here
+			-- or leave it empty to use the default settings
+			-- refer to the configuration section below
+			delay = 500,
+			icons = {
+				breadcrumb = "»", -- 分隔符
+				separator = "➜", -- 符号与描述之间的连接符
+				group = "+",      -- 文件夹/组的前缀
+				mappings = false,
+				enabled = false,
+				-- 使用纯文本替代 Nerd Font 图标，避免显示问题
+				keys = {
+					Up = "Up ",
+					Down = "Down ",
+					Left = "Left ",
+					Right = "Right ",
+					C = "Ctrl-",
+					M = "Alt-",
+					D = "Cmd-",
+					S = "Shift-",
+					CR = "Enter",
+					Esc = "Esc",
+					ScrollWheelDown = "ScrollDown ",
+					ScrollWheelUp = "ScrollUp ",
+					NL = "Enter ",
+					BS = "Backspace",
+					Space = "Space",
+					Tab = "Tab",
+					F1 = "F1",
+					F2 = "F2",
+					F3 = "F3",
+					F4 = "F4",
+					F5 = "F5",
+					F6 = "F6",
+					F7 = "F7",
+					F8 = "F8",
+					F9 = "F9",
+					F10 = "F10",
+					F11 = "F11",
+					F12 = "F12",
+				},
+			},
+			plugins = {
+				presets = {
+					operators = false,    -- 隐藏 d, y 等操作符
+					motions = false,      -- 隐藏 h, j, k, l 等移动
+					text_objects = false, -- 隐藏 i, a 等文本对象
+					windows = false,      -- 隐藏 Ctrl-w 窗口指令
+					nav = false,          -- 隐藏 Ctrl-d, Ctrl-u 等翻页指令
+					z = false,            -- 隐藏 z 系列
+					g = false,            -- 隐藏 g 系列
+				},
+			},
+		},
+		keys = {
+			{
+				"<leader>?",
+				function()
+					require("which-key").show({ global = true })
+				end,
+				desc = "Buffer Local Keymaps (which-key)",
+			},
+		},
+	},
 
     -- ============================================
     -- 彩虹括号
