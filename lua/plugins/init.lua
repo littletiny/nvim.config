@@ -193,17 +193,17 @@ return {
 			vim.keymap.set({ "n" }, "<C-n>", ":CodeCompanionChat<CR>", {
 				noremap = true,
 				silent = true,
-				desc = "new codecompantionchat session",
+				desc = "new session [AI:agent]",
 			})
 			vim.keymap.set({ "v" }, "<leader>a", ":CodeCompanionChat Add<CR>", {
 				noremap = true,
 				silent = true,
-				desc = "add context to codecompantionchat",
+				desc = "add visual content to current session as input [AI:agent]",
 			})
 			vim.keymap.set({ "n", "v" }, "<leader>e", ":CodeCompanion ", {
 				noremap = true,
 				silent = false,
-				desc = "执行codecompantion",
+				desc = "ask AI something, the response will insert to currnet file [AI:model]",
 			})
 		end,
 	},
