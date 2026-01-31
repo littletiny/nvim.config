@@ -45,7 +45,7 @@ return {
         lazy = false,
         ---@type snacks.Config
         opts = {
-            input = { 
+            input = {
                 enabled = true,
                 icon = "> ",
             },
@@ -248,8 +248,20 @@ return {
     -- ============================================
     -- 空白字符处理
     -- ============================================
-    "ntpeters/vim-better-whitespace",
-    "johnfrankmorgan/whitespace.nvim",
+    --"ntpeters/vim-better-whitespace",
+	{
+		"johnfrankmorgan/whitespace.nvim",
+		config = function()
+			ws = require('whitespace-nvim')
+			ws.setup({
+				highlight = 'DiffDelete',
+				ignored_filetypes = { 'TelescopePrompt', 'Trouble', 'help', 'dashboard' },
+				ignore_terminal = true,
+				return_cursor = true,
+			})
+			vim.keymap.set('n', '<Leader>t', ws.trim)
+		end,
+	},
 
     -- ============================================
     -- 高亮单词
@@ -272,13 +284,7 @@ return {
     -- ============================================
     -- 彩虹括号
     -- ============================================
-    -- "luochen1990/rainbow",
 	"hiphish/rainbow-delimiters.nvim",
-
-    -- ============================================
-    -- C++ LSP 高亮
-    -- ============================================
-    -- "jackguo380/vim-lsp-cxx-highlight",
 
     -- ============================================
     -- Git 集成
